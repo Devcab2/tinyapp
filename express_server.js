@@ -3,6 +3,11 @@ const app = express();
 const PORT = 8080; //default
 app.set("view engine", "ejs");
 
+function generateRandomString() {
+  const uniqueId = Math.random().toString(36).substr(2, 6);
+  return uniqueId;
+};
+
 const urlDatabase = {
   "b2xVn2": "http://ww.lighthouselabs.ca",
   "9sm5xK": "http://www.google.com"
