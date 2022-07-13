@@ -8,6 +8,8 @@ function generateRandomString() {
   return uniqueId;
 };
 
+app.use(express.urlencoded({ extended: true}));
+
 const urlDatabase = {
   "b2xVn2": "http://ww.lighthouselabs.ca",
   "9sm5xK": "http://www.google.com"
