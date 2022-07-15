@@ -66,3 +66,7 @@ app.post("/urls/:id/update", (req, res) => {
   urlDatabase[req.params.id] = req.body.newLongURL;
   res.redirect("/urls");
 });
+
+app.get("/register", (req, res) => {
+  res.render("registration");
+});
