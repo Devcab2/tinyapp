@@ -9,15 +9,6 @@ const generateRandomString = function() {
   return uniqueId;
 };
 
-const getUsername = function(req) {
-  const username = req.cookies["username"];
-  if (!username) {
-    return "N/A";
-  } else {
-    return username;
-  }
-};
-
 app.use(express.urlencoded({ extended: true}));
 app.use(cookieParser());
 
@@ -56,10 +47,8 @@ app.get("/hello", (req, res) => {
 });
 
 app.get("/urls", (req, res) => {
-  const templateVars = {
-    username: getUsername(req),
-    urls: urlDatabase
-  };
+  const username = req.cookies.username;
+  const templateVars = { username, urls: urlDatabase };
   res.render("urls_index", templateVars);
 });
 
@@ -120,6 +109,13 @@ app.post("/register", (req, res) => {
 });
 
 app.post("/login", (req, res) => {
-  res.cookie("username", req.body.username);
+  const username = req.body.username;
+  res.cookie("username", username);
+  res.redirect("/urls");
+});
+
+app.post("/logout", (req, res) => {
+  const username = req.body.username;
+  res.clearCookie("username", username);
   res.redirect("/urls");
 });
