@@ -1,4 +1,5 @@
 const express = require("express");
+const cookieParser = require('cookie-parser');
 const app = express();
 const PORT = 8080; //default
 app.set("view engine", "ejs");
@@ -8,7 +9,17 @@ const generateRandomString = function() {
   return uniqueId;
 };
 
+const getUsername = function(req) {
+  const username = req.cookies["username"];
+  if (!username) {
+    return "N/A";
+  } else {
+    return username;
+  }
+};
+
 app.use(express.urlencoded({ extended: true}));
+app.use(cookieParser());
 
 const urlDatabase = {
   "b2xVn2": "http://ww.lighthouselabs.ca",
@@ -45,12 +56,18 @@ app.get("/hello", (req, res) => {
 });
 
 app.get("/urls", (req, res) => {
-  const templateVars = { urls: urlDatabase };
+  const templateVars = {
+    username: getUsername(req),
+    urls: urlDatabase
+  };
   res.render("urls_index", templateVars);
 });
 
 app.get("/urls/new", (req, res) => {
-  res.render("urls_new");
+  const templateVars = {
+    username: getUsername(req)
+  };
+  res.render("urls_new", templateVars);
 });
 
 app.post("/urls", (req, res) => {
@@ -61,7 +78,11 @@ app.post("/urls", (req, res) => {
 });
 
 app.get("/urls/:id", (req, res) => {
-  const templateVars = { id: req.params.id, longURL: urlDatabase[req.params.id]};
+  const templateVars = {
+    username: getUsername(req),
+    id: req.params.id,
+    longURL: urlDatabase[req.params.id]
+  };
   res.render("urls_show", templateVars);
 });
 
@@ -81,7 +102,10 @@ app.post("/urls/:id/update", (req, res) => {
 });
 
 app.get("/register", (req, res) => {
-  res.render("registration");
+  const templateVars = {
+    username: getUsername(req)
+  };
+  res.render("registration", templateVars);
 });
 
 app.post("/register", (req, res) => {
@@ -92,5 +116,10 @@ app.post("/register", (req, res) => {
     
   };
   users[user.id] = user;
+  res.redirect("/urls");
+});
+
+app.post("/login", (req, res) => {
+  res.cookie("username", req.body.username);
   res.redirect("/urls");
 });
