@@ -53,10 +53,8 @@ app.get("/urls", (req, res) => {
 });
 
 app.get("/urls/new", (req, res) => {
-  const templateVars = {
-    username: getUsername(req)
-  };
-  res.render("urls_new", templateVars);
+  const username = req.body.username;
+  res.render("urls_new", username);
 });
 
 app.post("/urls", (req, res) => {
@@ -68,7 +66,7 @@ app.post("/urls", (req, res) => {
 
 app.get("/urls/:id", (req, res) => {
   const templateVars = {
-    username: getUsername(req),
+    username: req.body.username,
     id: req.params.id,
     longURL: urlDatabase[req.params.id]
   };
@@ -91,10 +89,8 @@ app.post("/urls/:id/update", (req, res) => {
 });
 
 app.get("/register", (req, res) => {
-  const templateVars = {
-    username: getUsername(req)
-  };
-  res.render("registration", templateVars);
+  const username = req.body.username;
+  res.render("registration", username);
 });
 
 app.post("/register", (req, res) => {
