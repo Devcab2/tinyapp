@@ -1,4 +1,4 @@
-const { getUserByEmail } = require('./helper_function.js');
+const { getUserByEmail, generateRandomString, urlsForUser } = require('./helper_function.js');
 const express = require("express");
 const cookieSession = require('cookie-session');
 const bcrypt = require("bcryptjs");
@@ -16,10 +16,6 @@ app.use(cookieSession({
   maxAge: 24 * 60 * 60 * 1000 // 24 hours
 }));
 
-const generateRandomString = function() {
-  const uniqueId = Math.random().toString(36).substr(2, 6);
-  return uniqueId;
-};
 
 const urlDatabase = {
   "b2xVn2": {
@@ -45,23 +41,12 @@ const users = {
   },
 };
 
-const urlsForUser = (id) => {
-  const urls = {};
-  for (let key in urlDatabase) {
-    const url = urlDatabase[key];
-    if (url.userID === id) {
-      urls[key] = url;
-    }
-  }
-  return urls;
-};
+app.listen(PORT, () => {
+  console.log(`Example app listening port ${PORT}!`);
+});
 
 app.get("/", (req, res) => {
   res.send("Hello!");
-});
-
-app.listen(PORT, () => {
-  console.log(`Example app listening port ${PORT}!`);
 });
 
 app.get("/urls.json", (req, res) => {
@@ -97,19 +82,6 @@ app.get("/urls/new", (req, res) => {
   }
 });
 
-app.post("/urls", (req, res) => {
-  let id = generateRandomString();
-  let userID = req.session.user_id;
-  if (!userID) {
-    return res.status(403).send("Not logged in...");
-  }
-  urlDatabase[id] = {
-    longURL: req.body.longURL,
-    userID: userID
-  };
-  res.redirect(`/urls/${id}`);
-});
-
 app.get("/urls/:id", (req, res) => {
   const userID = req.session.user_id;
   if (!userID) {
@@ -137,6 +109,45 @@ app.get("/u/:id", (req, res) => {
     return res.status(403).send("URL does not exist");
   }
   res.redirect(url.longURL);
+});
+
+app.get("/register", (req, res) => {
+  const userID = req.session.user_id;
+  if (!userID) {
+    return res.render("registration", { user: undefined });
+  }
+  const user = users[userID];
+  if (!user) {
+    req.session["user_id"] = undefined;
+    return res.render("registration", { user: undefined });
+  }
+  return res.redirect("/urls");
+});
+
+app.get("/login", (req, res) => {
+  const userID = req.session.user_id;
+  if (!userID) {
+    return res.render("login");
+  }
+  const user = users[userID];
+  if (!user) {
+    req.session["user_id"] = undefined;
+    return res.render("login");
+  }
+  return res.redirect("/urls");
+});
+
+app.post("/urls", (req, res) => {
+  let id = generateRandomString();
+  let userID = req.session.user_id;
+  if (!userID) {
+    return res.status(403).send("Not logged in...");
+  }
+  urlDatabase[id] = {
+    longURL: req.body.longURL,
+    userID: userID
+  };
+  res.redirect(`/urls/${id}`);
 });
 
 app.post("/urls/:id/delete", (req, res) => {
@@ -173,18 +184,7 @@ app.post("/urls/:id/update", (req, res) => {
   res.redirect("/urls");
 });
 
-app.get("/register", (req, res) => {
-  const userID = req.session.user_id;
-  if (!userID) {
-    return res.render("registration", { user: undefined });
-  }
-  const user = users[userID];
-  if (!user) {
-    req.session["user_id"] = undefined;
-    return res.render("registration", { user: undefined });
-  }
-  return res.redirect("/urls");
-});
+
 
 app.post("/register", (req, res) => {
   const { email, password } = req.body;
@@ -224,20 +224,9 @@ app.post("/login", (req, res) => {
   return res.status(403).send("Email or Password is incorrect");
 });
 
-app.get("/login", (req, res) => {
-  const userID = req.session.user_id;
-  if (!userID) {
-    return res.render("login");
-  }
-  const user = users[userID];
-  if (!user) {
-    req.session["user_id"] = undefined;
-    return res.render("login");
-  }
-  return res.redirect("/urls");
-});
-
 app.post("/logout", (req, res) => {
   req.session["user_id"] = undefined;
   res.redirect("/urls");
 });
+
+module.exports = {urlDatabase,};

@@ -1,3 +1,5 @@
+const {urlDatabase,} = require;
+
 const getUserByEmail = (email, users) => {
   for (const userId in users) {
     if (users[userId].email === email) {
@@ -7,4 +9,19 @@ const getUserByEmail = (email, users) => {
   return null;
 };
 
-module.exports = {getUserByEmail};
+const generateRandomString = function() {
+  const uniqueId = Math.random().toString(36).substr(2, 6);
+  return uniqueId;
+};
+const urlsForUser = (id) => {
+  const urls = {};
+  for (let key in urlDatabase) {
+    const url = urlDatabase[key];
+    if (url.userID === id) {
+      urls[key] = url;
+    }
+  }
+  return urls;
+};
+
+module.exports = { getUserByEmail, generateRandomString, urlsForUser };
