@@ -1,18 +1,25 @@
 const { getUserByEmail } = require('./helper_function.js');
 const express = require("express");
-const cookieParser = require('cookie-parser');
+const cookieSession = require('cookie-session');
+const bcrypt = require("bcryptjs");
+
 const app = express();
 const PORT = 8080; //default
-const bcrypt = require("bcryptjs");
+
 app.set("view engine", "ejs");
+app.use(express.urlencoded({ extended: true}));
+app.use(cookieSession({
+  name: 'session',
+  keys: ["my-secret-key"],
+
+  // Cookie Options
+  maxAge: 24 * 60 * 60 * 1000 // 24 hours
+}));
 
 const generateRandomString = function() {
   const uniqueId = Math.random().toString(36).substr(2, 6);
   return uniqueId;
 };
-
-app.use(express.urlencoded({ extended: true}));
-app.use(cookieParser());
 
 const urlDatabase = {
   "b2xVn2": {
@@ -66,7 +73,7 @@ app.get("/hello", (req, res) => {
 });
 
 app.get("/urls", (req, res) => {
-  const userID = req.cookies["user_id"];
+  const userID = req.session.user_id;
   if (!userID) {
     return res.status(400).send("must log in first");
   }
@@ -82,7 +89,7 @@ app.get("/urls", (req, res) => {
 
 app.get("/urls/new", (req, res) => {
   const user = req.body.user;
-  if (!req.cookies["user_id"]) {
+  if (!req.session.user_id) {
     res.redirect("/login");
   } else {
     const templateVars = { user: user };
@@ -92,7 +99,7 @@ app.get("/urls/new", (req, res) => {
 
 app.post("/urls", (req, res) => {
   let id = generateRandomString();
-  let userID = req.cookies["user_id"];
+  let userID = req.session.user_id;
   if (!userID) {
     return res.status(403).send("Not logged in...");
   }
@@ -104,7 +111,7 @@ app.post("/urls", (req, res) => {
 });
 
 app.get("/urls/:id", (req, res) => {
-  const userID = req.cookies["user_id"];
+  const userID = req.session.user_id;
   if (!userID) {
     return res.status(403).send("Not logged in");
   }
@@ -133,7 +140,7 @@ app.get("/u/:id", (req, res) => {
 });
 
 app.post("/urls/:id/delete", (req, res) => {
-  const userID = req.cookies["user_id"];
+  const userID = req.session.user_id;
   if (!userID) {
     return res.status(403).send("Not logged in");
   }
@@ -150,7 +157,7 @@ app.post("/urls/:id/delete", (req, res) => {
 });
 
 app.post("/urls/:id/update", (req, res) => {
-  const userID = req.cookies["user_id"];
+  const userID = req.session.user_id;
   if (!userID) {
     return res.status(403).send("Not logged in");
   }
@@ -167,13 +174,13 @@ app.post("/urls/:id/update", (req, res) => {
 });
 
 app.get("/register", (req, res) => {
-  const userID = req.cookies["user_id"];
+  const userID = req.session.user_id;
   if (!userID) {
     return res.render("registration", { user: undefined });
   }
   const user = users[userID];
   if (!user) {
-    res.clearCookie("user_id");
+    req.session["user_id"] = undefined;
     return res.render("registration", { user: undefined });
   }
   return res.redirect("/urls");
@@ -199,7 +206,7 @@ app.post("/register", (req, res) => {
   };
   
   users[user.id] = user;
-  res.cookie("user_id", user.id);
+  req.session["user_id"] = user.id;
   res.redirect("/urls");
 });
 
@@ -209,7 +216,7 @@ app.post("/login", (req, res) => {
   for (let key in users) {
     let user = users[key];
     if (userEmail === user.email && bcrypt.compareSync(userPass, user.password)) {
-      res.cookie("user_id", user.id);
+      req.session["user_id"] = user.id;
       res.redirect("/urls");
       return;
     }
@@ -218,19 +225,19 @@ app.post("/login", (req, res) => {
 });
 
 app.get("/login", (req, res) => {
-  const userID = req.cookies["user_id"];
+  const userID = req.session.user_id;
   if (!userID) {
     return res.render("login");
   }
   const user = users[userID];
   if (!user) {
-    res.clearCookie("user_id");
+    req.session["user_id"] = undefined;
     return res.render("login");
   }
   return res.redirect("/urls");
 });
 
 app.post("/logout", (req, res) => {
-  res.clearCookie("user_id");
+  req.session["user_id"] = undefined;
   res.redirect("/urls");
 });
