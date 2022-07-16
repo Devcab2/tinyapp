@@ -1,3 +1,4 @@
+const { getUserByEmail } = require('./helper_function.js');
 const express = require("express");
 const cookieParser = require('cookie-parser');
 const app = express();
@@ -94,6 +95,16 @@ app.get("/register", (req, res) => {
 });
 
 app.post("/register", (req, res) => {
+  const { email, password } = req.body;
+  const foundUser = getUserByEmail(email, users);
+
+  if (email === "" || password === "") {
+    return res.status(400).send("error: 400 Bad Request ");
+  }
+  if (foundUser) {
+    return res.status(400).send("error: 400 A user with that email already exists");
+  }
+  
   let user = {
     id: generateRandomString(),
     email: req.body.email,
