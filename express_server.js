@@ -1,6 +1,7 @@
 const { getUserByEmail } = require('./helper_function.js');
 const express = require("express");
 const cookieParser = require('cookie-parser');
+const res = require('express/lib/response');
 const app = express();
 const PORT = 8080; //default
 app.set("view engine", "ejs");
@@ -117,9 +118,18 @@ app.post("/register", (req, res) => {
 });
 
 app.post("/login", (req, res) => {
-  const user = req.body.user;
-  res.cookie("user_id", user);
-  res.redirect("/urls");
+  const userEmail = req.body.email;
+  const userPass = req.body.password;
+  for (let key in users) {
+    let user = users[key];
+    if (userEmail === user.email && userPass === user.password) {
+      res.cookie("user_id", user.id);
+      res.redirect("/urls");
+      return;
+    }
+  }
+  res.status(403).send("Email or Password is incorrect");
+
 });
 
 app.get("/login", (req, res) => {
