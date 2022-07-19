@@ -1,4 +1,4 @@
-const {urlDatabase,} = require;
+const {urlDatabase,} = require('./objects.js');
 
 const getUserByEmail = (email, users) => {
   for (const userId in users) {
