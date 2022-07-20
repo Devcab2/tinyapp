@@ -47,13 +47,16 @@ app.get("/urls", (req, res) => {
 });
 
 app.get("/urls/new", (req, res) => {
-  const user = req.body.user;
-  if (!req.session.user_id) {
-    res.redirect("/login");
-  } else {
-    const templateVars = { user: user };
-    res.render("urls_new", templateVars);
+  const userID = req.session.user_id;
+  if (!userID) {
+    return res.status(403).send("Not logged in");
   }
+  const user = users[userID];
+  if (!user) {
+    return res.status(400).send("Invalid user");
+  }
+  const templateVars = { user: user };
+  res.render("urls_new", templateVars);
 });
 
 app.get("/urls/:id", (req, res) => {
@@ -69,8 +72,16 @@ app.get("/urls/:id", (req, res) => {
   if (url.userID !== userID) {
     return res.status(403).send("Not your URL");
   }
+  
+  const user = users[userID];
+
+  if (!user) {
+
+    return res.status(400).send("Invalid user");
+  }
+
   const templateVars = {
-    user: req.body.user,
+    user: user,
     id: req.params.id,
     longURL: url.longURL
   };
@@ -157,8 +168,6 @@ app.post("/urls/:id/update", (req, res) => {
   url.longURL = req.body.newLongURL;
   res.redirect("/urls");
 });
-
-
 
 app.post("/register", (req, res) => {
   const { email, password } = req.body;
