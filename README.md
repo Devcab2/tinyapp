@@ -5,8 +5,8 @@ tinyapps purpose is to store, create, read, update, delete, and shorten "URLS"
 
 ## FINAL PRODUCT
 
-!["screenshot description"](#)
-!["screenshot description"](#) 
+!["Screenshot of urls edit page"](https://github.com/Devcab2/tinyapp/blob/main/docs/tinyapp%20edit-page.png?raw=true)
+!["Screenshot of urls page"](https://github.com/Devcab2/tinyapp/blob/main/docs/tinyapp%20urls-page.png?raw=true) 
 
 ## DEPENDENCIES
 > Node.js
