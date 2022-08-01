@@ -9,11 +9,11 @@ tinyapps purpose is to store, create, read, update, delete, and shorten "URLS"
 !["Screenshot of urls page"](https://github.com/Devcab2/tinyapp/blob/main/docs/tinyapp%20urls-page.png?raw=true) 
 
 ## DEPENDENCIES
-> Node.js
-> Express
-> EJS
-> cookie-session
-> bcryptjs
+> Node.js 15.14.0
+> Express 4.18.1
+> EJS 3.1.8
+> cookie-session 2.0.0
+> bcryptjs 2.4.3
 
 ## HOW TO USE
 1. install all dependencies using npm install.
