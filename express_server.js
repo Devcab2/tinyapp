@@ -42,7 +42,7 @@ app.get("/hello", (req, res) => {
 app.get("/urls", (req, res) => {
   const userID = req.session.user_id;
   if (!userID) {
-    return res.status(400).send("must log in first");
+    return res.render("urls_403");
   }
   const user = users[userID];
   if (!user) {
@@ -72,7 +72,7 @@ app.get("/urls/new", (req, res) => {
 app.get("/urls/:id", (req, res) => {
   const userID = req.session.user_id;
   if (!userID) {
-    return res.status(403).send("Not logged in");
+    return res.render("urls_403");
   }
   const urlID = req.params.id;
   const url = urlDatabase[urlID];
@@ -134,6 +134,8 @@ app.get("/login", (req, res) => {
   }
   return res.redirect("/urls");
 });
+
+
 
 //url create route
 app.post("/urls", (req, res) => {
