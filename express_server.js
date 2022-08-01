@@ -58,7 +58,7 @@ app.get("/urls", (req, res) => {
 app.get("/urls/new", (req, res) => {
   const userID = req.session.user_id;
   if (!userID) {
-    return res.status(403).send("Not logged in");
+    return res.redirect("/login");
   }
   const user = users[userID];
   if (!user) {
