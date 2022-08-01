@@ -1,9 +1,11 @@
+//server requirements
 const { getUserByEmail, generateRandomString, urlsForUser } = require('./helper_function.js');
 const { urlDatabase, users } = require('./objects.js');
 const express = require("express");
 const cookieSession = require('cookie-session');
 const bcrypt = require("bcryptjs");
 
+// run express server on port 8080
 const app = express();
 const PORT = 8080; //default
 
@@ -31,6 +33,7 @@ app.get("/hello", (req, res) => {
   res.send("<html><body>Hello <b>World</b></body></html>\n");
 });
 
+// homepage route
 app.get("/urls", (req, res) => {
   const userID = req.session.user_id;
   if (!userID) {
@@ -46,6 +49,7 @@ app.get("/urls", (req, res) => {
   res.render("urls_index", templateVars);
 });
 
+//render urls
 app.get("/urls/new", (req, res) => {
   const userID = req.session.user_id;
   if (!userID) {
@@ -59,6 +63,7 @@ app.get("/urls/new", (req, res) => {
   res.render("urls_new", templateVars);
 });
 
+//check if url exists, and that the user exists
 app.get("/urls/:id", (req, res) => {
   const userID = req.session.user_id;
   if (!userID) {
@@ -88,6 +93,7 @@ app.get("/urls/:id", (req, res) => {
   res.render("urls_show", templateVars);
 });
 
+//redirect user to long url
 app.get("/u/:id", (req, res) => {
   let url = urlDatabase[req.params.id];
   if (!url) {
@@ -96,6 +102,7 @@ app.get("/u/:id", (req, res) => {
   res.redirect(url.longURL);
 });
 
+//account register route
 app.get("/register", (req, res) => {
   const userID = req.session.user_id;
   if (!userID) {
@@ -109,6 +116,7 @@ app.get("/register", (req, res) => {
   return res.redirect("/urls");
 });
 
+//login route
 app.get("/login", (req, res) => {
   const userID = req.session.user_id;
   if (!userID) {
@@ -122,6 +130,7 @@ app.get("/login", (req, res) => {
   return res.redirect("/urls");
 });
 
+//url create route
 app.post("/urls", (req, res) => {
   let id = generateRandomString();
   let userID = req.session.user_id;
@@ -135,6 +144,7 @@ app.post("/urls", (req, res) => {
   res.redirect(`/urls/${id}`);
 });
 
+//url delete route
 app.post("/urls/:id/delete", (req, res) => {
   const userID = req.session.user_id;
   if (!userID) {
@@ -152,6 +162,7 @@ app.post("/urls/:id/delete", (req, res) => {
   res.redirect("/urls");
 });
 
+//edit url post route
 app.post("/urls/:id/update", (req, res) => {
   const userID = req.session.user_id;
   if (!userID) {
@@ -169,6 +180,7 @@ app.post("/urls/:id/update", (req, res) => {
   res.redirect("/urls");
 });
 
+//register account post route
 app.post("/register", (req, res) => {
   const { email, password } = req.body;
   const foundUser = getUserByEmail(email, users);
@@ -193,6 +205,7 @@ app.post("/register", (req, res) => {
   res.redirect("/urls");
 });
 
+//login post route
 app.post("/login", (req, res) => {
   const userEmail = req.body.email;
   const userPass = req.body.password;
@@ -207,11 +220,13 @@ app.post("/login", (req, res) => {
   return res.status(403).send("Email or Password is incorrect");
 });
 
+//logout post route
 app.post("/logout", (req, res) => {
   req.session["user_id"] = undefined;
   res.redirect("/urls");
 });
 
+//tell server to listen for requests
 app.listen(PORT, () => {
   console.log(`Example app listening port ${PORT}!`);
 });
